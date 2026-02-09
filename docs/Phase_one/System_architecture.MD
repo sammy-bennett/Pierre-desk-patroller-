@@ -514,6 +514,7 @@ Function: Structure + Electrical Ground
 - **Advanced AI:** TinyML on-device pattern recognition
 - **Voice Commands:** Microphone + speech recognition (conflicts with silent operation goal)
 - **Expandable Sensors:** Modular sensor mounting for experimentation
+- **larger battery:** Allows for longer life time between charging cycles
 
 ---
 
@@ -521,7 +522,7 @@ Function: Structure + Electrical Ground
 
 | Version | Date | Author | Changes |
 | ------- | ---- | ------ | ------- |
-| 1.0 | Feb 2026 | Project Lead | Initial architecture document |
+| 1.0 | Feb 2026 | Sam | Initial document created |
 
 ---
 
@@ -530,4 +531,4 @@ Function: Structure + Electrical Ground
 - Finalize component selection (motors, battery, sensors)
 - Create detailed pin assignment table
 - Develop power budget spreadsheet
-- Begin hardware prototyping (breadboard validation)
+- Begin hardware prototyping (breadboard protoype)
