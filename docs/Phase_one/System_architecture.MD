@@ -1,6 +1,6 @@
 # System Architecture Document
 
-## Pierre the Planet Patroller
+## Pierre Bot
 
 **Version:** 1.0  
 **Date:** February 2026  
