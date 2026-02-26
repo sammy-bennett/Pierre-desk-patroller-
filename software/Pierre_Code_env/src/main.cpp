@@ -10,13 +10,16 @@
 bool wifi_connected;
 
 
+std::unique_ptr<Face> screen;
+
+
 void setup() {
   Serial.begin(115200);
   
 //  highlevel set up for I2C  //
   while(!Wire.begin(I2C_SDA,I2C_SCL)){
     Serial.println("Cannot start I2C communication.. trying again....");
-    delay(300);
+    delay(200);
   }
   Serial.println("I2C initiated!");
   
@@ -43,9 +46,26 @@ void setup() {
     Serial.println(WiFi.localIP());}
   else 
     Serial.println("WIFI NOT established!.. timeout reached");
+
+  //  Screen stuff!!  //
+  screen = std::unique_ptr<Face>(new Face(128,64,40));
+  screen->Behavior.SetEmotion(eEmotions::Normal, 1.0);
+  screen->Behavior.SetEmotion(eEmotions::Glee, 0.8);
+  screen->Behavior.SetEmotion(eEmotions::Surprised, 0.6);
+  screen->Behavior.SetEmotion(eEmotions::Focused, 0.5);
+  screen->Behavior.SetEmotion(eEmotions::Angry, 0.3);
+  screen->Behavior.SetEmotion(eEmotions::Sad, 0.3);
+  screen->Behavior.SetEmotion(eEmotions::Sleepy, 0.4);
+  screen->Behavior.SetEmotion(eEmotions::Squint, 0.2);
+  screen->Behavior.SetEmotion(eEmotions::Skeptic, 0.6);
+  //timings
+  screen->RandomBehavior = true;
+  screen->Behavior.Timer.SetIntervalMillis(2500);
+  screen->Blink.Timer.SetIntervalMillis(4000);
+  screen->Look.Timer.SetIntervalMillis(2000);
 }
 
 void loop() {
-
-
+  screen->Update();
+  delay(20); //~50fps
 }
