@@ -7,10 +7,11 @@
 #include <pin_definition.h>
 
 
-bool wifi_connected;
-
-
+//  Variables //
 std::unique_ptr<Face> screen;
+bool wifi_connected;
+int updatescreen_time(0), wifi_stat_time(0);
+
 
 
 void setup() {
@@ -23,7 +24,7 @@ void setup() {
   }
   Serial.println("I2C initiated!");
   
-  //  wifi set up //
+//  wifi set up //
   WiFi.mode(WIFI_STA); //standard mode, like a pc (optininal)
   Serial.println("connecting to wifi...");
   delay(500);
@@ -47,7 +48,7 @@ void setup() {
   else 
     Serial.println("WIFI NOT established!.. timeout reached");
 
-  //  Screen stuff!!  //
+//  Screen stuff!!  //
   screen = std::unique_ptr<Face>(new Face(128,64,40));
   screen->Behavior.SetEmotion(eEmotions::Normal, 1.0);
   screen->Behavior.SetEmotion(eEmotions::Glee, 0.8);
@@ -56,8 +57,8 @@ void setup() {
   screen->Behavior.SetEmotion(eEmotions::Angry, 0.3);
   screen->Behavior.SetEmotion(eEmotions::Sad, 0.3);
   screen->Behavior.SetEmotion(eEmotions::Sleepy, 0.4);
-  screen->Behavior.SetEmotion(eEmotions::Squint, 0.2);
-  screen->Behavior.SetEmotion(eEmotions::Skeptic, 0.6);
+  screen->Behavior.SetEmotion(eEmotions::Squint, 0.4);
+  screen->Behavior.SetEmotion(eEmotions::Skeptic, 0.2);
   //timings
   screen->RandomBehavior = true;
   screen->Behavior.Timer.SetIntervalMillis(2500);
@@ -66,6 +67,21 @@ void setup() {
 }
 
 void loop() {
+int cur_time = millis();
+
+if(cur_time - updatescreen_time >= 20){
   screen->Update();
-  delay(20); //~50fps
+  updatescreen_time = millis();
+ //~50fps every 20mS
+}
+
+if(cur_time - wifi_stat_time >= 1000){
+  wifi_connected = (WiFi.status() == WL_CONNECTED);
+  if(wifi_connected)
+    Serial.println("Wifi connected!!");
+  
+  else
+    Serial.println("wifi still not connected");
+  wifi_stat_time = millis();
+}
 }
