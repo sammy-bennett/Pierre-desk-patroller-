@@ -75,11 +75,12 @@ if(cur_time - updatescreen_time >= 20){
  //~50fps every 20mS
 }
 
-if(cur_time - wifi_stat_time >= 1000){
+if(cur_time - wifi_stat_time >= 6000){
   wifi_connected = (WiFi.status() == WL_CONNECTED);
-  if(wifi_connected)
-    Serial.println("Wifi connected!!");
-  
+  if(wifi_connected){
+    Serial.print("\nWifi connected!!\nIP: ");
+    Serial.println(WiFi.dnsIP());
+  }
   else
     Serial.println("wifi still not connected");
   wifi_stat_time = millis();
