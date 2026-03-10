@@ -1,10 +1,12 @@
 #include <Arduino.h>
+#include <string> //arduino strng not std::string
 #include <Wire.h>
 #include <WiFi.h>
 #include <memory>
 #include <Face.h> //esp32_eyes
 #include<ArduinoJson.h> 
 #include<WiFiClientSecure.h>
+#include<HTTPClient.h>
 
 
 #include <pin_definition.h>
@@ -16,7 +18,7 @@ bool wifi_connected;
 int updatescreen_time(0), get_request_time(0);
 
 //  function pre-declarations //
-void get_weather_request(JsonDocument &json_doc);
+void get_weather_request();
 
 void setup() {
   Serial.begin(115200);
@@ -55,7 +57,7 @@ void setup() {
  }// wifi setup  
  
 { //  Screen stuff!!  //
-  std::unique_ptr<Face> screen = std::make_unique<Face>(128,64,40);
+  screen = std::make_unique<Face>(128,64,40);
   screen->Behavior.SetEmotion(eEmotions::Normal, 1.0);
   screen->Behavior.SetEmotion(eEmotions::Glee, 0.8);
   screen->Behavior.SetEmotion(eEmotions::Surprised, 0.6);
@@ -83,12 +85,12 @@ if(cur_time - updatescreen_time >= 20){
  //~50fps every 20mS
 }
 
-if(cur_time - get_request_time >= 6000){
+if(cur_time - get_request_time >= 10000){
   wifi_connected = (WiFi.status() == WL_CONNECTED);
   if(wifi_connected){
     Serial.print("\nWifi connected!!\nIP: ");
     Serial.println(WiFi.dnsIP());
-
+    Serial.print("\n\n");
 
   }
   else
@@ -98,3 +100,34 @@ if(cur_time - get_request_time >= 6000){
 
 } //end of loop
 
+
+  //  Function defonitions  //
+void get_weather_request(){
+    // test code thayt will go in a function to call the get request //
+    std::unique_ptr<WiFiClientSecure> client = std::make_unique<WiFiClientSecure>();
+    client->setInsecure(); // not safe but fine for just weather reports
+    HTTPClient https;
+
+    Serial.println("HTTPS started");
+    if (https.begin(*client, "https://jsonplaceholder.typicode.com/todos/1")){
+      Serial.println("[HTTPS] GET...");
+      int httpscode = https.GET(); //negative if error
+
+      Serial.printf("HTTPS Code: %d\n", httpscode);
+      if (httpscode == HTTP_CODE_OK || httpscode == HTTP_CODE_MOVED_PERMANENTLY){
+        //printing the payload
+        
+        JsonDocument payload_json;
+        deserializeJson(payload_json,https.getString());
+
+        Serial.println(payload_json["userId"].as<int>());
+        Serial.println(payload_json["title"].as<String>());
+      }
+      else{
+       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpscode).c_str());
+      }
+    }
+    else
+      Serial.println("HTTPS unable to connect...");
+
+};
