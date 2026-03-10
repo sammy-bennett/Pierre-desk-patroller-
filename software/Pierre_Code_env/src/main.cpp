@@ -3,6 +3,9 @@
 #include <WiFi.h>
 #include <memory>
 #include <Face.h> //esp32_eyes
+#include<ArduinoJson.h> 
+#include<WiFiClientSecure.h>
+
 
 #include <pin_definition.h>
 
@@ -10,21 +13,23 @@
 //  Variables //
 std::unique_ptr<Face> screen;
 bool wifi_connected;
-int updatescreen_time(0), wifi_stat_time(0);
+int updatescreen_time(0), get_request_time(0);
 
-
+//  function pre-declarations //
+void get_weather_request(JsonDocument &json_doc);
 
 void setup() {
   Serial.begin(115200);
-  
-//  highlevel set up for I2C  //
+    
+{//  highlevel set up for I2C  //
   while(!Wire.begin(I2C_SDA,I2C_SCL)){
     Serial.println("Cannot start I2C communication.. trying again....");
     delay(200);
   }
   Serial.println("I2C initiated!");
-  
-//  wifi set up //
+  }
+
+{//  wifi set up //
   WiFi.mode(WIFI_STA); //standard mode, like a pc (optininal)
   Serial.println("connecting to wifi...");
   delay(500);
@@ -47,9 +52,10 @@ void setup() {
     Serial.println(WiFi.localIP());}
   else 
     Serial.println("WIFI NOT established!.. timeout reached");
-
-//  Screen stuff!!  //
-  screen = std::unique_ptr<Face>(new Face(128,64,40));
+ }// wifi setup  
+ 
+{ //  Screen stuff!!  //
+  std::unique_ptr<Face> screen = std::make_unique<Face>(128,64,40);
   screen->Behavior.SetEmotion(eEmotions::Normal, 1.0);
   screen->Behavior.SetEmotion(eEmotions::Glee, 0.8);
   screen->Behavior.SetEmotion(eEmotions::Surprised, 0.6);
@@ -64,7 +70,9 @@ void setup() {
   screen->Behavior.Timer.SetIntervalMillis(2500);
   screen->Blink.Timer.SetIntervalMillis(4000);
   screen->Look.Timer.SetIntervalMillis(2000);
-}
+}//screen stuff
+
+}// end of setup
 
 void loop() {
 int cur_time = millis();
@@ -75,14 +83,18 @@ if(cur_time - updatescreen_time >= 20){
  //~50fps every 20mS
 }
 
-if(cur_time - wifi_stat_time >= 6000){
+if(cur_time - get_request_time >= 6000){
   wifi_connected = (WiFi.status() == WL_CONNECTED);
   if(wifi_connected){
     Serial.print("\nWifi connected!!\nIP: ");
     Serial.println(WiFi.dnsIP());
+
+
   }
   else
-    Serial.println("wifi still not connected");
-  wifi_stat_time = millis();
+    Serial.println("wifi not connected");
+  get_request_time = millis();
 }
-}
+
+} //end of loop
+
