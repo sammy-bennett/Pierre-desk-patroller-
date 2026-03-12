@@ -91,7 +91,7 @@ if(cur_time - get_request_time >= 10000){
     Serial.print("\nWifi connected!!\nIP: ");
     Serial.println(WiFi.dnsIP());
     Serial.print("\n\n");
-
+    get_weather_request();
   }
   else
     Serial.println("wifi not connected");
@@ -103,7 +103,6 @@ if(cur_time - get_request_time >= 10000){
 
   //  Function defonitions  //
 void get_weather_request(){
-    // test code thayt will go in a function to call the get request //
     std::unique_ptr<WiFiClientSecure> client = std::make_unique<WiFiClientSecure>();
     client->setInsecure(); // not safe but fine for just weather reports
     HTTPClient https;
@@ -129,5 +128,5 @@ void get_weather_request(){
     }
     else
       Serial.println("HTTPS unable to connect...");
-
+  https.end();
 };
